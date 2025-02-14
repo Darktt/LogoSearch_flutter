@@ -1,33 +1,50 @@
 import 'package:logo_search/models/brand_search_request.dart';
 import 'package:logo_search/models/brand_search_response.dart';
+import 'package:logo_search/redux/store.dart';
+import 'package:logo_search/view_model/logo_search_error.dart';
 
-sealed class LogoSearchAction {
-  const LogoSearchAction();
+sealed class LogoSearchAction extends Action {
+  final dynamic content;
 
-  const factory LogoSearchAction.search(BrandSearchRequest request) =
-      LogoSearchActionSearch;
+  LogoSearchAction(this.content);
 
-  const factory LogoSearchAction.searchResponse(List<LogoInfo> logos) =
-      LogoSearchActionSearchResponse;
+  static LogoSearchAction search(BrandSearchRequest content) =>
+      LogoSearchActionSearch(content);
 
-  const factory LogoSearchAction.fetchApiError(Exception exception) =
-      LogoSearchActionFetchApiError;
+  static LogoSearchAction searchResponse(List<LogoInfo> content) =>
+      LogoSearchActionSearchResponse(content);
+
+  static LogoSearchAction fetchApiException(Exception content) =>
+      LogoSearchActionFetchApiException(content);
+
+  static LogoSearchAction error(LogoSearchError content) =>
+      LogoSearchActionError(content);
 }
 
 class LogoSearchActionSearch extends LogoSearchAction {
-  final BrandSearchRequest request;
+  @override
+  BrandSearchRequest get content => super.content as BrandSearchRequest;
 
-  const LogoSearchActionSearch(this.request);
+  LogoSearchActionSearch(super.content);
 }
 
 class LogoSearchActionSearchResponse extends LogoSearchAction {
-  final List<LogoInfo> logoInfos;
+  @override
+  List<LogoInfo> get content => super.content as List<LogoInfo>;
 
-  const LogoSearchActionSearchResponse(this.logoInfos);
+  LogoSearchActionSearchResponse(super.content);
 }
 
-class LogoSearchActionFetchApiError extends LogoSearchAction {
-  final Exception exception;
+class LogoSearchActionFetchApiException extends LogoSearchAction {
+  @override
+  Exception get content => super.content as Exception;
 
-  const LogoSearchActionFetchApiError(this.exception);
+  LogoSearchActionFetchApiException(super.content);
+}
+
+class LogoSearchActionError extends LogoSearchAction {
+  @override
+  LogoSearchError get content => super.content as LogoSearchError;
+
+  LogoSearchActionError(super.content);
 }

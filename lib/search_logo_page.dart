@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logo_search/colors_extension.dart';
 import 'package:logo_search/models/brand_search_request.dart';
+import 'package:logo_search/models/brand_search_response.dart';
+import 'package:logo_search/search_logo_table_row.dart';
 import 'package:logo_search/view_model/logo_search_action.dart';
 import 'package:provider/provider.dart';
 import 'package:logo_search/view_model/logo_search_store.dart';
@@ -82,11 +84,42 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
                   ],
                 ),
               ),
+              Table(
+                children: _setupTableRows(store.state.logoInfos),
+              )
             ],
           ),
         ),
       ),
     );
+  }
+
+  List<TableRow> _setupTableRows(List<LogoInfo> logoInfos) {
+    if (logoInfos.isEmpty) {
+      return [
+        TableRow(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Text(
+                'No result',
+                style: TextStyle(color: CustomColors.textPrimary),
+              ),
+            ),
+          ],
+        ),
+      ];
+    }
+
+    final tableRows = logoInfos.map((LogoInfo logoInfo) {
+      return TableRow(
+        children: [
+          SearchLogoTableRow(logoInfo: logoInfo),
+        ],
+      );
+    }).toList();
+
+    return tableRows;
   }
 
   void _sendSearchAction(LogoSearchStore store) {

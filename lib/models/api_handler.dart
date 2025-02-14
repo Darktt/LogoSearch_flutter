@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:logo_search/models/api_request.dart';
+import 'package:logo_search/models/http_exception.dart';
 
 final class ApiHandler {
   // - Properties -
@@ -24,6 +25,13 @@ final class ApiHandler {
 
     HttpClientResponse httpResponse = await httpRequest.close();
     String json = await httpResponse.transform(utf8.decoder).join();
+
+    if (httpResponse.statusCode != 200) {
+      HttpStatusCode code = HttpStatusCode.statusCode(httpResponse.statusCode);
+      final exception = HttpException(code);
+
+      throw exception;
+    }
 
     logJson(json);
     Response response = request.responseFromJson(json);
