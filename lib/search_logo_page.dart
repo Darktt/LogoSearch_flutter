@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:logo_search/colors_extension.dart';
 import 'package:logo_search/models/brand_search_request.dart';
 import 'package:logo_search/view_model/logo_search_action.dart';
@@ -29,63 +30,72 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
         title: Text('Logo Search'),
         centerTitle: true,
         backgroundColor: CustomColors.background,
+        foregroundColor: CustomColors.textPrimary,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              color: CustomColors.background,
-              child: Row(
-                children: [
-                  // 搜尋輸入框
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Enter brand name...",
-                        hintStyle: TextStyle(color: CustomColors.hintText),
-                        filled: true,
-                        fillColor: CustomColors.background,
-                        border: OutlineInputBorder(
+      body: Container(
+        color: CustomColors.background,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 35.0,
+                child: Row(
+                  children: [
+                    // 搜尋輸入框
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "Enter brand name...",
+                          hintStyle: TextStyle(color: CustomColors.hintText),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 8), // 調整內部間距
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: const BorderSide(
+                                color: CustomColors.borderLine),
+                          ),
+                        ),
+                        style: const TextStyle(color: CustomColors.textPrimary),
+                        onChanged: (value) {
+                          _searchText = value;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10.0), // 按鈕與輸入框的間距
+                    // 搜尋按鈕
+                    ElevatedButton(
+                      onPressed: () {
+                        _sendSearchAction(store);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: CustomColors.button.background,
+                        foregroundColor: CustomColors.button.foreground,
+                        // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide:
-                              const BorderSide(color: CustomColors.borderLine),
                         ),
                       ),
-                      style: const TextStyle(color: CustomColors.textPrimary),
-                      onChanged: (value) {
-                        _searchText = value;
-                      },
+                      child: const Text("Search"),
                     ),
-                  ),
-                  const SizedBox(width: 10), // 按鈕與輸入框的間距
-                  // 搜尋按鈕
-                  ElevatedButton(
-                    onPressed: () {
-                      _sendSearchAction(store);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: CustomColors.button.background,
-                      foregroundColor: CustomColors.button.foreground,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text("Search"),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _sendSearchAction(LogoSearchStore store) {
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
+
+    if (_searchText.isEmpty) {
+      return;
+    }
+
     // 這裡可以加上搜尋功能
     BrandSearchRequest request = BrandSearchRequest(_searchText);
     LogoSearchAction action = LogoSearchAction.search(request);

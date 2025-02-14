@@ -21,9 +21,9 @@ class LogoSearchActionSearch extends LogoSearchAction {
 }
 
 class LogoSearchActionSearchResponse extends LogoSearchAction {
-  final List<LogoInfo> logos;
+  final List<LogoInfo> logoInfos;
 
-  const LogoSearchActionSearchResponse(this.logos);
+  const LogoSearchActionSearchResponse(this.logoInfos);
 }
 
 class LogoSearchActionFetchApiError extends LogoSearchAction {

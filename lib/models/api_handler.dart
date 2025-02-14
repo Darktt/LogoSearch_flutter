@@ -25,6 +25,7 @@ final class ApiHandler {
     HttpClientResponse httpResponse = await httpRequest.close();
     String json = await httpResponse.transform(utf8.decoder).join();
 
+    logJson(json);
     Response response = request.responseFromJson(json);
 
     return response;
