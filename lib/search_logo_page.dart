@@ -1,0 +1,95 @@
+import 'package:flutter/material.dart';
+import 'package:logo_search/colors_extension.dart';
+import 'package:logo_search/models/brand_search_request.dart';
+import 'package:logo_search/view_model/logo_search_action.dart';
+import 'package:provider/provider.dart';
+import 'package:logo_search/view_model/logo_search_store.dart';
+
+class SearchLogoPage extends StatefulWidget {
+  // Properties
+
+  const SearchLogoPage({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _SearchLogoPageState createState() => _SearchLogoPageState();
+}
+
+// - _SearchLogoPageState -
+
+class _SearchLogoPageState extends State<SearchLogoPage> {
+  String _searchText = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final store = context.watch<LogoSearchStore>();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Logo Search'),
+        centerTitle: true,
+        backgroundColor: CustomColors.background,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: CustomColors.background,
+              child: Row(
+                children: [
+                  // 搜尋輸入框
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Enter brand name...",
+                        hintStyle: TextStyle(color: CustomColors.hintText),
+                        filled: true,
+                        fillColor: CustomColors.background,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              const BorderSide(color: CustomColors.borderLine),
+                        ),
+                      ),
+                      style: const TextStyle(color: CustomColors.textPrimary),
+                      onChanged: (value) {
+                        _searchText = value;
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10), // 按鈕與輸入框的間距
+                  // 搜尋按鈕
+                  ElevatedButton(
+                    onPressed: () {
+                      _sendSearchAction(store);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: CustomColors.button.background,
+                      foregroundColor: CustomColors.button.foreground,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    child: const Text("Search"),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _sendSearchAction(LogoSearchStore store) {
+    // 這裡可以加上搜尋功能
+    BrandSearchRequest request = BrandSearchRequest(_searchText);
+    LogoSearchAction action = LogoSearchAction.search(request);
+
+    store.dispatch(action);
+  }
+}
