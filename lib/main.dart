@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logo_search/models/api_key.dart';
+import 'package:logo_search/models/route.dart';
 import 'package:provider/provider.dart';
 import 'package:logo_search/search_logo_page.dart';
 import 'package:logo_search/view_model/logo_search_store.dart';
@@ -31,6 +32,8 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         home: SearchLogoPage(),
+        initialRoute: Routes.initialRoute.name,
+        routes: Routes.routes,
       ),
     );
   }
