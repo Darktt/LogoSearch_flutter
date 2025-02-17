@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logo_search/extensions/colors_extension.dart';
 import 'package:logo_search/models/brand_search_request.dart';
-import 'package:logo_search/models/brand_search_response.dart';
 import 'package:logo_search/search_logo_table_row.dart';
 import 'package:logo_search/view_model/logo_search_action.dart';
 import 'package:provider/provider.dart';
@@ -37,56 +36,12 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
       body: Container(
         color: CustomColors.background,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
+          padding: EdgeInsets.only(left: 5.0, top: 5.0, right: 5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 35.0,
-                child: Row(
-                  children: [
-                    // 搜尋輸入框
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: "Enter brand name...",
-                          hintStyle: TextStyle(color: CustomColors.text.hint),
-                          contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 8), // 調整內部間距
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                            borderSide: const BorderSide(
-                                color: CustomColors.borderLine),
-                          ),
-                        ),
-                        style: TextStyle(color: CustomColors.text.primary),
-                        onChanged: (value) {
-                          _searchText = value;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10.0), // 按鈕與輸入框的間距
-                    // 搜尋按鈕
-                    ElevatedButton(
-                      onPressed: () {
-                        _sendSearchAction(store);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: CustomColors.button.background,
-                        foregroundColor: CustomColors.button.foreground,
-                        // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text("Search"),
-                    ),
-                  ],
-                ),
-              ),
-              Table(
-                children: _setupTableRows(store.state.logoInfos),
-              )
+              _setupSearchBar(store),
+              Expanded(child: _setupListView(store)),
             ],
           ),
         ),
@@ -94,34 +49,72 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
     );
   }
 
-  List<TableRow> _setupTableRows(List<LogoInfo> logoInfos) {
-    if (logoInfos.isEmpty) {
-      return [
-        TableRow(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: Text(
-                'No result',
-                style: TextStyle(color: CustomColors.text.primary),
+  Widget _setupSearchBar(LogoSearchStore store) {
+    return SizedBox(
+      height: 35.0,
+      child: Row(
+        children: [
+          // 搜尋輸入框
+          Expanded(
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: "Enter brand name...",
+                hintStyle: TextStyle(color: CustomColors.text.hint),
+                contentPadding: EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 8.0), // 調整內部間距
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: const BorderSide(color: CustomColors.borderLine),
+                ),
+              ),
+              style: TextStyle(color: CustomColors.text.primary),
+              onChanged: (value) {
+                _searchText = value;
+              },
+            ),
+          ),
+          const SizedBox(width: 10.0), // 按鈕與輸入框的間距
+          // 搜尋按鈕
+          ElevatedButton(
+            onPressed: () {
+              _sendSearchAction(store);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: CustomColors.button.background,
+              foregroundColor: CustomColors.button.foreground,
+              // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
             ),
-          ],
-        ),
-      ];
-    }
-
-    final tableRows = logoInfos.map((LogoInfo logoInfo) {
-      return TableRow(
-        children: [
-          SearchLogoTableRow(logoInfo: logoInfo),
+            child: const Text("Search"),
+          ),
         ],
-      );
-    }).toList();
-
-    return tableRows;
+      ),
+    );
   }
 
+  ListView _setupListView(LogoSearchStore store) {
+    return ListView.builder(
+        shrinkWrap: true,
+        itemCount: store.state.logoInfos.length,
+        itemBuilder: (context, index) {
+          return _setupListRow(index, store);
+        });
+  }
+
+  Widget _setupListRow(int index, LogoSearchStore store) {
+    final logoInfos = store.state.logoInfos;
+    final logoInfo = logoInfos[index];
+    final row = SearchLogoTableRow(
+        logoInfo: logoInfo,
+        onDetailPressed: (logoInfo) =>
+            {print('Detail Pressed: ${logoInfo.name}')});
+
+    return row;
+  }
+
+// - Actions -
   void _sendSearchAction(LogoSearchStore store) {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 

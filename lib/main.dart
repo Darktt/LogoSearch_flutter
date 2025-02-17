@@ -14,11 +14,11 @@ class MyApp extends StatelessWidget {
   final LogoSearchStore _store = kLogoSearchStore;
 
   MyApp({super.key}) {
-    if (APIKey.publicKey == 'your_public_key') {
+    if (APIKey.publicKey == kPublicKeyNotSet) {
       throw Exception('Please set your public key in lib/models/api_key.dart');
     }
 
-    if (APIKey.secretKey == 'your_secret_key') {
+    if (APIKey.secretKey == kSecretKeyNotSet) {
       throw Exception('Please set your secret key in lib/models/api_key.dart');
     }
   }
