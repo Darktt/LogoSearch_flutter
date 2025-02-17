@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logo_search/colors_extension.dart';
+import 'package:logo_search/extensions/colors_extension.dart';
 import 'package:logo_search/models/brand_search_request.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 import 'package:logo_search/search_logo_table_row.dart';
@@ -32,12 +32,12 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
         title: Text('Logo Search'),
         centerTitle: true,
         backgroundColor: CustomColors.background,
-        foregroundColor: CustomColors.textPrimary,
+        foregroundColor: CustomColors.foreground,
       ),
       body: Container(
         color: CustomColors.background,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+          padding: const EdgeInsets.symmetric(horizontal: 0.0, vertical: 10.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -50,7 +50,7 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
                       child: TextField(
                         decoration: InputDecoration(
                           hintText: "Enter brand name...",
-                          hintStyle: TextStyle(color: CustomColors.hintText),
+                          hintStyle: TextStyle(color: CustomColors.text.hint),
                           contentPadding: EdgeInsets.symmetric(
                               horizontal: 10, vertical: 8), // 調整內部間距
                           border: OutlineInputBorder(
@@ -59,7 +59,7 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
                                 color: CustomColors.borderLine),
                           ),
                         ),
-                        style: const TextStyle(color: CustomColors.textPrimary),
+                        style: TextStyle(color: CustomColors.text.primary),
                         onChanged: (value) {
                           _searchText = value;
                         },
@@ -99,11 +99,11 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
       return [
         TableRow(
           children: [
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(10.0),
               child: Text(
                 'No result',
-                style: TextStyle(color: CustomColors.textPrimary),
+                style: TextStyle(color: CustomColors.text.primary),
               ),
             ),
           ],
