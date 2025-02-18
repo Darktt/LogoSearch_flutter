@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:logo_search/extensions/colors_extension.dart';
+import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/brand_search_request.dart';
-import 'package:logo_search/search_logo_table_row.dart';
+import 'package:logo_search/models/route.dart';
+import 'package:logo_search/search_logo_page/search_logo_table_row.dart';
 import 'package:logo_search/view_model/logo_search_action.dart';
 import 'package:provider/provider.dart';
 import 'package:logo_search/view_model/logo_search_store.dart';
@@ -108,8 +109,11 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
     final logoInfo = logoInfos[index];
     final row = SearchLogoTableRow(
         logoInfo: logoInfo,
-        onDetailPressed: (logoInfo) =>
-            {print('Detail Pressed: ${logoInfo.name}')});
+        onDetailPressed: (logoInfo) {
+          DetailRoute detailRoute = DetailRoute.instance;
+
+          Routes.next(detailRoute, context, logoInfo);
+        });
 
     return row;
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:logo_search/extensions/colors_extension.dart';
-import 'package:logo_search/extensions/image_extension.dart';
+import 'package:logo_search/models/colors.dart';
+import 'package:logo_search/models/images.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 
 typedef SearchLogoTableRowCallback = void Function(LogoInfo logoInfo);
