@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/brand_search_response.dart';
+import 'package:logo_search/models/rounded_container.dart';
 import 'package:logo_search/models/text_styles.dart';
 
 class LogoDetailPage extends StatefulWidget {
@@ -22,6 +23,7 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
         title: Text('Logo Image'),
         centerTitle: true,
@@ -30,80 +32,77 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
       ),
       body: Container(
         color: CustomColors.background,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _setupPreview(),
-                _setupControlPanel(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _setupPreview() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: CustomColors.borderLine, width: 1.0),
-        borderRadius: BorderRadius.all(Radius.circular(6.0)),
-      ),
-      child: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Preview',
-                  style: TextStyles.title2.withColor(CustomColors.text.primary),
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.all(15.0),
+                child: Column(
+                  spacing: 10.0,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _setupPreview(),
+                    _setupControlPanel(),
+                  ],
                 ),
-                OutlinedButton.icon(
-                  onPressed: _downloadLogoAction,
-                  icon: Icon(
-                    Icons.download,
-                    color: CustomColors.text.primary,
-                  ),
-                  label: Text(
-                    'Download',
-                    style: TextStyles.caption1
-                        .withColor(CustomColors.text.primary),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: CustomColors.borderLine),
-                  ),
-                )
-              ],
-            ),
-            _previewImage(),
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  Widget _previewImage() {
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: 50.0),
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: CustomColors.borderLine, width: 1.0),
-          borderRadius: BorderRadius.all(Radius.circular(6.0)),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(1.0),
-          child: Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: NetworkImage(logoInfo.imageUrl ?? ''),
-                fit: BoxFit.contain,
+  Widget _setupPreview() {
+    return RoundedContainer(
+      radius: 6.0,
+      borderColor: CustomColors.borderLine,
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        spacing: 5.0,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Preview',
+                style: TextStyles.title2.withColor(CustomColors.text.primary),
               ),
-            ),
+              OutlinedButton.icon(
+                onPressed: _downloadLogoAction,
+                icon: Icon(
+                  Icons.download,
+                  color: CustomColors.text.primary,
+                ),
+                label: Text(
+                  'Download',
+                  style:
+                      TextStyles.caption1.withColor(CustomColors.text.primary),
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: CustomColors.borderLine),
+                ),
+              )
+            ],
+          ),
+          _previewImage(),
+        ],
+      ),
+    );
+  }
+
+  Widget _previewImage() {
+    return RoundedContainer(
+      radius: 6.0,
+      borderColor: CustomColors.borderLine,
+      padding: EdgeInsets.all(1.0),
+      child: Container(
+        constraints: BoxConstraints(minHeight: 50.0),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: NetworkImage(logoInfo.imageUrl ?? ''),
+            fit: BoxFit.contain,
           ),
         ),
       ),
@@ -111,17 +110,15 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
   }
 
   Widget _setupControlPanel() {
-    return Container(
-      decoration: BoxDecoration(
-          border: Border.all(color: CustomColors.borderLine, width: 1.0),
-          borderRadius: BorderRadius.all(Radius.circular(6.0))),
-      child: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          children: [
-            _setupDomainPanel(),
-          ],
-        ),
+    // width 1, radius 6, padding 15
+    return RoundedContainer(
+      radius: 6.0,
+      borderColor: CustomColors.borderLine,
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        children: [
+          _setupDomainPanel(),
+        ],
       ),
     );
   }
@@ -135,23 +132,19 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
           'Domain',
           style: TextStyles.caption1.withColor(CustomColors.text.primary),
         ),
-        Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: CustomColors.borderLine, width: 1.0),
-            borderRadius: BorderRadius.all(Radius.circular(6.0)),
-          ),
-          child: Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  logoInfo.domain ?? '',
-                  style: TextStyles.caption2
-                      .withColor(CustomColors.text.secondary),
-                ),
-              ],
-            ),
+        RoundedContainer(
+          radius: 6.0,
+          borderColor: CustomColors.borderLine,
+          padding: EdgeInsets.all(5.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                logoInfo.domain ?? '',
+                style:
+                    TextStyles.caption2.withColor(CustomColors.text.secondary),
+              ),
+            ],
           ),
         ),
       ],
