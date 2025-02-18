@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/brand_search_response.dart';
+import 'package:logo_search/models/logo_image_fallback.dart';
+import 'package:logo_search/models/logo_image_format.dart';
 import 'package:logo_search/models/rounded_container.dart';
 import 'package:logo_search/models/text_styles.dart';
+
+typedef LogoImageFormatEntry = DropdownMenuEntry<LogoImageFormat>;
+typedef LogoImageFallbackEntry = DropdownMenuEntry<LogoImageFallback>;
 
 class LogoDetailPage extends StatefulWidget {
   const LogoDetailPage({super.key});
@@ -16,6 +21,8 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
   double size = 180.0;
   bool isGreyscale = false;
   bool isRetina = false;
+  LogoImageFormat format = LogoImageFormat.jpg;
+  LogoImageFallback fallback = LogoImageFallback.monogram;
 
   @override
   void didChangeDependencies() {
@@ -125,6 +132,7 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
           _setupSizePanel(),
           _setupGreyscalePanel(),
           _setupRetinaPanel(),
+          _setupFormat(),
         ],
       ),
     );
@@ -214,6 +222,59 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
           inactiveTrackColor: CustomColors.borderLine,
           thumbColor: WidgetStateProperty.all(CustomColors.background),
           trackOutlineWidth: WidgetStateProperty.all(0.0),
+        ),
+      ],
+    );
+  }
+
+  Widget _setupFormat() {
+    return Column(
+      spacing: 10.0,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Format',
+          style: TextStyles.caption1.withColor(CustomColors.text.primary),
+        ),
+        SizedBox(
+          height: 50.0,
+          child: DropdownButtonFormField<String>(
+            icon: const Icon(Icons.keyboard_arrow_down_rounded),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6.0),
+                borderSide: const BorderSide(
+                  color: CustomColors.borderLine,
+                  width: 1.0,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6.0),
+                borderSide: const BorderSide(
+                  color: CustomColors.borderLine,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            value: format.description,
+            onChanged: (String? newValue) {
+              setState(() {
+                format = LogoImageFormat.values.firstWhere(
+                  (element) => element.description == newValue,
+                );
+              });
+            },
+            style: TextStyles.caption2.withColor(CustomColors.text.primary),
+            items: LogoImageFormat.values
+                .map<DropdownMenuItem<String>>((LogoImageFormat value) {
+              return DropdownMenuItem<String>(
+                value: value.description,
+                child: Text(
+                  value.description,
+                ),
+              );
+            }).toList(),
+          ),
         ),
       ],
     );
