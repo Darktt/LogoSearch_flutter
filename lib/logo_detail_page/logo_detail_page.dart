@@ -13,6 +13,9 @@ class LogoDetailPage extends StatefulWidget {
 
 class _LogoDetailPageState extends State<LogoDetailPage> {
   late LogoInfo logoInfo;
+  double size = 180.0;
+  bool isGreyscale = false;
+  bool isRetina = false;
 
   @override
   void didChangeDependencies() {
@@ -116,8 +119,12 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
       borderColor: CustomColors.borderLine,
       padding: EdgeInsets.all(15.0),
       child: Column(
+        spacing: 10.0,
         children: [
           _setupDomainPanel(),
+          _setupSizePanel(),
+          _setupGreyscalePanel(),
+          _setupRetinaPanel(),
         ],
       ),
     );
@@ -146,6 +153,67 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
               ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _setupSizePanel() {
+    return Column(
+      spacing: 10.0,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Size (${size.toInt()}px)',
+          style: TextStyles.caption1.withColor(CustomColors.text.primary),
+        ),
+        Slider(
+          value: size,
+          onChanged: (value) => setState(() => size = value),
+          max: 300.0,
+          min: 16.0,
+          activeColor: CustomColors.foreground,
+          inactiveColor: CustomColors.borderLine,
+        ),
+      ],
+    );
+  }
+
+  Widget _setupGreyscalePanel() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Greyscale',
+          style: TextStyles.caption1.withColor(CustomColors.text.primary),
+        ),
+        Switch(
+          value: isGreyscale,
+          onChanged: (value) => setState(() => isGreyscale = value),
+          activeColor: CustomColors.foreground,
+          inactiveTrackColor: CustomColors.borderLine,
+          thumbColor: WidgetStateProperty.all(CustomColors.background),
+          trackOutlineWidth: WidgetStateProperty.all(0.0),
+        ),
+      ],
+    );
+  }
+
+  Widget _setupRetinaPanel() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Retina',
+          style: TextStyles.caption1.withColor(CustomColors.text.primary),
+        ),
+        Switch(
+          value: isRetina,
+          onChanged: (value) => setState(() => isRetina = value),
+          activeColor: CustomColors.foreground,
+          inactiveTrackColor: CustomColors.borderLine,
+          thumbColor: WidgetStateProperty.all(CustomColors.background),
+          trackOutlineWidth: WidgetStateProperty.all(0.0),
         ),
       ],
     );
