@@ -75,4 +75,9 @@ extension WithColor on TextStyle {
   TextStyle withColor(Color color) {
     return copyWith(color: color);
   }
+
+  // ignore: unused_element
+  TextStyle withBackgroundColor(Color color) {
+    return copyWith(backgroundColor: color);
+  }
 }

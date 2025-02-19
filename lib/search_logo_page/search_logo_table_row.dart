@@ -3,7 +3,7 @@ import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/images.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 
-typedef SearchLogoTableRowCallback = void Function(LogoInfo logoInfo);
+typedef SearchLogoTableRowCallback = void Function();
 
 class SearchLogoTableRow extends StatefulWidget {
   final LogoInfo logoInfo;
@@ -36,7 +36,7 @@ class _SearchLogoTableRowState extends State<SearchLogoTableRow> {
           ),
         ],
       ),
-      onTap: () => widget.onDetailPressed?.call(widget.logoInfo),
+      onTap: () => widget.onDetailPressed?.call(),
     );
   }
 

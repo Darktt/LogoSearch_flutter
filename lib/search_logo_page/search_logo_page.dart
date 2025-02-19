@@ -41,7 +41,10 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _setupSearchBar(store),
+              _SearchBar(
+                onInputChanged: (value) => _searchText = value,
+                onSearchPressed: () => _sendSearchAction(store),
+              ),
               Expanded(child: _setupListView(store)),
             ],
           ),
@@ -50,69 +53,23 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
     );
   }
 
-  Widget _setupSearchBar(LogoSearchStore store) {
-    return SizedBox(
-      height: 35.0,
-      child: Row(
-        children: [
-          // 搜尋輸入框
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: "Enter brand name...",
-                hintStyle: TextStyle(color: CustomColors.text.hint),
-                contentPadding: EdgeInsets.symmetric(
-                    horizontal: 10.0, vertical: 8.0), // 調整內部間距
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: const BorderSide(color: CustomColors.borderLine),
-                ),
-              ),
-              style: TextStyle(color: CustomColors.text.primary),
-              onChanged: (value) {
-                _searchText = value;
-              },
-            ),
-          ),
-          const SizedBox(width: 10.0), // 按鈕與輸入框的間距
-          // 搜尋按鈕
-          ElevatedButton(
-            onPressed: () {
-              _sendSearchAction(store);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: CustomColors.button.background,
-              foregroundColor: CustomColors.button.foreground,
-              // padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            child: const Text("Search"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  ListView _setupListView(LogoSearchStore store) {
-    return ListView.builder(
-        shrinkWrap: true,
-        itemCount: store.state.logoInfos.length,
-        itemBuilder: (context, index) {
-          return _setupListRow(index, store);
-        });
-  }
+  ListView _setupListView(LogoSearchStore store) => ListView.builder(
+      shrinkWrap: true,
+      itemCount: store.state.logoInfos.length,
+      itemBuilder: (context, index) {
+        return _setupListRow(index, store);
+      });
 
   Widget _setupListRow(int index, LogoSearchStore store) {
     final logoInfos = store.state.logoInfos;
     final logoInfo = logoInfos[index];
     final row = SearchLogoTableRow(
         logoInfo: logoInfo,
-        onDetailPressed: (logoInfo) {
+        onDetailPressed: () {
           DetailRoute detailRoute = DetailRoute.instance;
+          store.state.selectedLogoInfoAt(index);
 
-          Routes.next(detailRoute, context, logoInfo);
+          Routes.next(detailRoute, context, store);
         });
 
     return row;
@@ -126,10 +83,60 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
       return;
     }
 
-    // 這裡可以加上搜尋功能
     BrandSearchRequest request = BrandSearchRequest(_searchText);
     LogoSearchAction action = LogoSearchAction.search(request);
 
     store.dispatch(action);
   }
+}
+
+class _SearchBar extends StatelessWidget {
+  final ValueChanged<String> onInputChanged;
+
+  final VoidCallback onSearchPressed;
+
+  const _SearchBar({
+    required this.onInputChanged,
+    required this.onSearchPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: 35.0,
+        child: Row(
+          children: [
+            // 搜尋輸入框
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Enter brand name...",
+                  hintStyle: TextStyle(color: CustomColors.text.hint),
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 10.0, vertical: 8.0), // 調整內部間距
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide:
+                        const BorderSide(color: CustomColors.borderLine),
+                  ),
+                ),
+                style: TextStyle(color: CustomColors.text.primary),
+                onChanged: onInputChanged,
+              ),
+            ),
+            const SizedBox(width: 10.0), // 按鈕與輸入框的間距
+            // 搜尋按鈕
+            ElevatedButton(
+              onPressed: onSearchPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: CustomColors.button.background,
+                foregroundColor: CustomColors.button.foreground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text("Search"),
+            ),
+          ],
+        ),
+      );
 }
