@@ -27,6 +27,8 @@ class LogoSearchState extends State {
 
   LogoImageFallback fallback = LogoImageFallback.monogram;
 
+  String logoImageUrl = '';
+
   // - Methods -
 
   void updateLogoInfos(List<LogoInfo> logoInfos) {

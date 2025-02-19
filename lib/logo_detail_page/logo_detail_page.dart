@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 import 'package:logo_search/models/dropdown_list.dart';
 import 'package:logo_search/models/logo_image_fallback.dart';
 import 'package:logo_search/models/logo_image_format.dart';
+import 'package:logo_search/models/logo_image_request.dart';
 import 'package:logo_search/models/rounded_container.dart';
 import 'package:logo_search/models/text_styles.dart';
+import 'package:logo_search/view_model/logo_search_action.dart';
 import 'package:logo_search/view_model/logo_search_state.dart';
 import 'package:logo_search/view_model/logo_search_store.dart';
 
@@ -20,20 +23,15 @@ class LogoDetailPage extends StatefulWidget {
 }
 
 class _LogoDetailPageState extends State<LogoDetailPage> {
-  late LogoSearchStore store;
-
-  LogoSearchState get state => store.state;
-
-  LogoInfo get logoInfo => state.selectedLogoInfo!;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    store = ModalRoute.of(context)!.settings.arguments as LogoSearchStore;
-  }
-
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<LogoSearchStore>();
+    final LogoSearchState state = store.state;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _imageRequestAction(store);
+    });
+
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -55,9 +53,9 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _Preview(
-                        imageUrl: logoInfo.imageUrl ?? '',
+                        imageUrl: state.logoImageUrl,
                         onPressed: _downloadLogoAction),
-                    _setupControlPanel(),
+                    _setupControlPanel(store),
                   ],
                 ),
               ),
@@ -68,73 +66,108 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
     );
   }
 
-  Widget _setupControlPanel() => RoundedContainer(
-        radius: 6.0,
-        borderColor: CustomColors.borderLine,
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          spacing: 10.0,
-          children: [
-            _DomainPanel(logoInfo: logoInfo),
-            _SizePanel(
-              size: state.size,
-              onChanged: (value) => setState(() {
-                state.size = value;
-              }),
-            ),
-            _SwitchPanel(
-              title: 'Greyscale',
-              value: state.isGreyscale,
-              onChanged: (value) => setState(() {
-                state.isGreyscale = value;
-              }),
-            ),
-            _SwitchPanel(
-              title: 'Retina',
-              value: state.isRetina,
-              onChanged: (value) => setState(() {
-                state.isRetina = value;
-              }),
-            ),
-            _DropdownPanel(
-              title: 'Format',
-              items: LogoImageFormat.values.map((LogoImageFormat value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-              value: state.format,
-              onChanged: (value) => setState(() {
-                state.format = value ?? state.format;
-              }),
-            ),
-            _DropdownPanel(
-              title: 'Fallback',
-              items: LogoImageFallback.values.map((LogoImageFallback value) {
-                return DropdownMenuItem(
-                  value: value,
-                  child: Text(value.description),
-                );
-              }).toList(),
-              value: state.fallback,
-              onChanged: (value) => setState(() {
-                state.fallback = value ?? state.fallback;
-              }),
-            ),
-          ],
-        ),
-      );
+  Widget _setupControlPanel(LogoSearchStore store) {
+    final state = store.state;
+
+    return RoundedContainer(
+      radius: 6.0,
+      borderColor: CustomColors.borderLine,
+      padding: EdgeInsets.all(15.0),
+      child: Column(
+        spacing: 10.0,
+        children: [
+          _DomainPanel(logoInfo: state.selectedLogoInfo!),
+          _SizePanel(
+            size: state.size,
+            onChanged: (value) => setState(() {
+              state.size = value;
+              _imageRequestAction(store);
+            }),
+          ),
+          _SwitchPanel(
+            title: 'Greyscale',
+            value: state.isGreyscale,
+            onChanged: (value) => setState(() {
+              state.isGreyscale = value;
+              _imageRequestAction(store);
+            }),
+          ),
+          _SwitchPanel(
+            title: 'Retina',
+            value: state.isRetina,
+            onChanged: (value) => setState(() {
+              state.isRetina = value;
+              _imageRequestAction(store);
+            }),
+          ),
+          _DropdownPanel(
+            title: 'Format',
+            items: LogoImageFormat.values.map((LogoImageFormat value) {
+              return DropdownMenuItem(
+                value: value,
+                child: Text(value.description),
+              );
+            }).toList(),
+            value: state.format,
+            onChanged: (value) => setState(() {
+              state.format = value ?? state.format;
+              _imageRequestAction(store);
+            }),
+          ),
+          _DropdownPanel(
+            title: 'Fallback',
+            items: LogoImageFallback.values.map((LogoImageFallback value) {
+              return DropdownMenuItem(
+                value: value,
+                child: Text(value.description),
+              );
+            }).toList(),
+            value: state.fallback,
+            onChanged: (value) => setState(() {
+              state.fallback = value ?? state.fallback;
+              _imageRequestAction(store);
+            }),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _downloadLogoAction() {}
+
+  void _imageRequestAction(LogoSearchStore store) {
+    final state = store.state;
+    final domain = state.selectedLogoInfo?.domain ?? '';
+    final size = state.size;
+    final isGreyscale = state.isGreyscale;
+    final isRetina = state.isRetina;
+    final format = state.format;
+    final fallback = state.fallback;
+
+    LogoImageRequest request = LogoImageRequest.image(domain)
+      ..size = size
+      ..isGreyscale = isGreyscale
+      ..isRetina = isRetina
+      ..format = format
+      ..fallback = fallback;
+
+    final action = LogoSearchAction.imageRequest(request);
+
+    store.dispatch(action);
+  }
 }
 
-class _Preview extends StatelessWidget {
+class _Preview extends StatefulWidget {
   final String imageUrl;
   final VoidCallback? onPressed;
 
   const _Preview({required this.imageUrl, required this.onPressed});
 
+  @override
+  State<_Preview> createState() => _PreviewState();
+}
+
+class _PreviewState extends State<_Preview> {
   @override
   Widget build(BuildContext context) => RoundedContainer(
         radius: 6.0,
@@ -151,7 +184,7 @@ class _Preview extends StatelessWidget {
                   style: TextStyles.title2.withColor(CustomColors.text.primary),
                 ),
                 OutlinedButton.icon(
-                  onPressed: onPressed,
+                  onPressed: widget.onPressed,
                   icon: Icon(
                     Icons.download,
                     color: CustomColors.text.primary,
@@ -167,7 +200,7 @@ class _Preview extends StatelessWidget {
                 )
               ],
             ),
-            _PreviewImage(imageUrl: imageUrl),
+            _PreviewImage(imageUrl: widget.imageUrl),
           ],
         ),
       );
@@ -185,11 +218,9 @@ class _PreviewImage extends StatelessWidget {
         padding: EdgeInsets.all(1.0),
         child: Container(
           constraints: BoxConstraints(minHeight: 50.0),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: NetworkImage(imageUrl),
-              fit: BoxFit.contain,
-            ),
+          child: FittedBox(
+            fit: BoxFit.fitHeight,
+            child: Image.network(imageUrl),
           ),
         ),
       );

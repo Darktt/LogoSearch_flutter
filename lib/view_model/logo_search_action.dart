@@ -1,5 +1,6 @@
 import 'package:logo_search/models/brand_search_request.dart';
 import 'package:logo_search/models/brand_search_response.dart';
+import 'package:logo_search/models/logo_image_request.dart';
 import 'package:logo_search/redux/store.dart';
 import 'package:logo_search/view_model/logo_search_error.dart';
 
@@ -19,6 +20,9 @@ sealed class LogoSearchAction extends Action {
 
   static LogoSearchAction error(LogoSearchError content) =>
       LogoSearchActionError(content);
+
+  static LogoSearchAction imageRequest(LogoImageRequest content) =>
+      LogoSearchActionImageRequest(content);
 }
 
 class LogoSearchActionSearch extends LogoSearchAction {
@@ -47,4 +51,11 @@ class LogoSearchActionError extends LogoSearchAction {
   LogoSearchError get content => super.content as LogoSearchError;
 
   LogoSearchActionError(super.content);
+}
+
+class LogoSearchActionImageRequest extends LogoSearchAction {
+  @override
+  LogoImageRequest get content => super.content as LogoImageRequest;
+
+  LogoSearchActionImageRequest(super.content);
 }

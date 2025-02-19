@@ -16,6 +16,10 @@ LogoSearchState _reducer(LogoSearchState state, LogoSearchAction action) {
     state.error = action.content;
   }
 
+  if (action is LogoSearchActionImageRequest) {
+    state.logoImageUrl = action.content.url;
+  }
+
   return state;
 }
 
