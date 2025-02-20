@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:logo_search/redux/store.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 import 'package:logo_search/view_model/logo_search_error.dart';
@@ -27,7 +28,9 @@ class LogoSearchState extends State {
 
   LogoImageFallback fallback = LogoImageFallback.monogram;
 
-  String logoImageUrl = '';
+  Uint8List _imageBytes = Uint8List(0);
+
+  Uint8List get imageBytes => _imageBytes;
 
   // - Methods -
 
@@ -37,5 +40,9 @@ class LogoSearchState extends State {
 
   void selectedLogoInfoAt(int index) {
     _selectedLogoInfo = _logoInfos[index];
+  }
+
+  void updateImageBytes(Uint8List imageBytes) {
+    _imageBytes = imageBytes;
   }
 }

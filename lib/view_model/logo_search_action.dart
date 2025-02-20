@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:logo_search/models/brand_search_request.dart';
 import 'package:logo_search/models/brand_search_response.dart';
 import 'package:logo_search/models/logo_image_request.dart';
@@ -23,6 +25,9 @@ sealed class LogoSearchAction extends Action {
 
   static LogoSearchAction imageRequest(LogoImageRequest content) =>
       LogoSearchActionImageRequest(content);
+
+  static LogoSearchAction imageResponse(Uint8List? content) =>
+      LogoSearchActionImageResponse(content);
 }
 
 class LogoSearchActionSearch extends LogoSearchAction {
@@ -58,4 +63,11 @@ class LogoSearchActionImageRequest extends LogoSearchAction {
   LogoImageRequest get content => super.content as LogoImageRequest;
 
   LogoSearchActionImageRequest(super.content);
+}
+
+class LogoSearchActionImageResponse extends LogoSearchAction {
+  @override
+  Uint8List? get content => super.content as Uint8List;
+
+  LogoSearchActionImageResponse(super.content);
 }

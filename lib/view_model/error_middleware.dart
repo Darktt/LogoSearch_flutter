@@ -5,12 +5,14 @@ import 'package:logo_search/view_model/logo_search_state.dart';
 import 'package:logo_search/view_model/logo_search_error.dart';
 
 Middleware<LogoSearchState, LogoSearchAction>
-    apiMiddleware<S extends LogoSearchState, A extends LogoSearchAction>() {
+    errorMiddleware<S extends LogoSearchState, A extends LogoSearchAction>() {
   return (Store<LogoSearchState, LogoSearchAction> store,
       Processor<LogoSearchAction> next) {
     return (LogoSearchAction action) {
       if (action is LogoSearchActionFetchApiException) {
-        _parseException(action);
+        LogoSearchAction newAction = _parseException(action);
+
+        next(newAction);
       }
 
       next(action);

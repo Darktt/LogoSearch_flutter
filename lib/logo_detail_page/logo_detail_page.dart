@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:logo_search/models/colors.dart';
@@ -23,43 +25,47 @@ class LogoDetailPage extends StatefulWidget {
 }
 
 class _LogoDetailPageState extends State<LogoDetailPage> {
+  double get bottomInset => MediaQuery.of(context).padding.bottom;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final store = context.read<LogoSearchStore>();
+      final state = store.state;
+
+      if (state.selectedLogoInfo != null) {
+        _imageRequestAction(store);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final store = context.watch<LogoSearchStore>();
     final LogoSearchState state = store.state;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _imageRequestAction(store);
-    });
-
     return Scaffold(
-      extendBody: true,
+      backgroundColor: CustomColors.background,
       appBar: AppBar(
         title: Text('Logo Image'),
         centerTitle: true,
         backgroundColor: CustomColors.background,
         foregroundColor: CustomColors.foreground,
       ),
-      body: Container(
-        color: CustomColors.background,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  spacing: 10.0,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _Preview(
-                        imageUrl: state.logoImageUrl,
-                        onPressed: _downloadLogoAction),
-                    _setupControlPanel(store),
-                  ],
-                ),
-              ),
-            )
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0 + bottomInset),
+        child: Column(
+          spacing: 10.0,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _Preview(
+              imageBytes: state.imageBytes,
+              size: state.size,
+              onPressed: _downloadLogoAction,
+            ),
+            _setupControlPanel(store),
           ],
         ),
       ),
@@ -81,8 +87,8 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
             size: state.size,
             onChanged: (value) => setState(() {
               state.size = value;
-              _imageRequestAction(store);
             }),
+            onChangeEnd: (value) => _imageRequestAction(store),
           ),
           _SwitchPanel(
             title: 'Greyscale',
@@ -133,7 +139,21 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
     );
   }
 
-  void _downloadLogoAction() {}
+  void _downloadLogoAction() {
+    final store = context.read<LogoSearchStore>();
+    final state = store.state;
+
+    if (state.imageBytes.isEmpty) {
+      return;
+    }
+
+    final mimeType = (store.state.format == LogoImageFormat.jpg)
+        ? 'image/jpeg'
+        : 'image/png';
+    final file = XFile.fromData(state.imageBytes, mimeType: mimeType);
+
+    Share.shareXFiles([file]);
+  }
 
   void _imageRequestAction(LogoSearchStore store) {
     final state = store.state;
@@ -157,23 +177,21 @@ class _LogoDetailPageState extends State<LogoDetailPage> {
   }
 }
 
-class _Preview extends StatefulWidget {
-  final String imageUrl;
+class _Preview extends StatelessWidget {
+  final Uint8List imageBytes;
+  final double size;
   final VoidCallback? onPressed;
 
-  const _Preview({required this.imageUrl, required this.onPressed});
+  const _Preview(
+      {required this.imageBytes, required this.size, required this.onPressed});
 
-  @override
-  State<_Preview> createState() => _PreviewState();
-}
-
-class _PreviewState extends State<_Preview> {
   @override
   Widget build(BuildContext context) => RoundedContainer(
         radius: 6.0,
         borderColor: CustomColors.borderLine,
         padding: EdgeInsets.all(15.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 5.0,
           children: [
             Row(
@@ -184,7 +202,7 @@ class _PreviewState extends State<_Preview> {
                   style: TextStyles.title2.withColor(CustomColors.text.primary),
                 ),
                 OutlinedButton.icon(
-                  onPressed: widget.onPressed,
+                  onPressed: onPressed,
                   icon: Icon(
                     Icons.download,
                     color: CustomColors.text.primary,
@@ -200,16 +218,20 @@ class _PreviewState extends State<_Preview> {
                 )
               ],
             ),
-            _PreviewImage(imageUrl: widget.imageUrl),
+            _PreviewImage(
+              imageBytes: imageBytes,
+              size: size,
+            ),
           ],
         ),
       );
 }
 
 class _PreviewImage extends StatelessWidget {
-  final String imageUrl;
+  final Uint8List imageBytes;
+  final double size;
 
-  const _PreviewImage({required this.imageUrl});
+  const _PreviewImage({required this.imageBytes, required this.size});
 
   @override
   Widget build(BuildContext context) => RoundedContainer(
@@ -218,10 +240,8 @@ class _PreviewImage extends StatelessWidget {
         padding: EdgeInsets.all(1.0),
         child: Container(
           constraints: BoxConstraints(minHeight: 50.0),
-          child: FittedBox(
-            fit: BoxFit.fitHeight,
-            child: Image.network(imageUrl),
-          ),
+          height: size,
+          child: (imageBytes.isNotEmpty) ? Image.memory(imageBytes) : null,
         ),
       );
 }
@@ -262,10 +282,12 @@ class _DomainPanel extends StatelessWidget {
 class _SizePanel extends StatelessWidget {
   final double size;
   final ValueChanged<double>? onChanged;
+  final ValueChanged<double> onChangeEnd;
 
   const _SizePanel({
     required this.size,
     this.onChanged,
+    required this.onChangeEnd,
   });
 
   @override
@@ -280,6 +302,7 @@ class _SizePanel extends StatelessWidget {
           Slider(
             value: size,
             onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
             max: 300.0,
             min: 16.0,
             activeColor: CustomColors.foreground,
