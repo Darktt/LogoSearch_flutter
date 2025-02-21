@@ -20,8 +20,11 @@ typedef Reducer<S extends State, A extends Action> = S Function(
 // Redux Store 類別
 class Store<S extends State, A extends Action> extends ChangeNotifier {
   S _state;
+  S get state => _state;
+
   final Reducer<S, A> _reducer;
   final List<Middleware<S, A>> _middlewares;
+
   late Processor<A> _dispatch;
 
   Store(this._state, this._reducer,
@@ -29,8 +32,6 @@ class Store<S extends State, A extends Action> extends ChangeNotifier {
       : _middlewares = middlewares {
     _dispatch = _createDispatch();
   }
-
-  S get state => _state;
 
   void dispatch(A action) => _dispatch(action);
 
