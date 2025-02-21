@@ -8,6 +8,10 @@ import 'package:logo_search/models/logo_image_format.dart';
 class LogoSearchState extends State {
   // - Properties -
 
+  bool _isQueried = false;
+
+  bool get isQueried => _isQueried;
+
   List<LogoInfo> _logoInfos = [];
 
   List<LogoInfo> get logoInfos => _logoInfos;
@@ -36,6 +40,7 @@ class LogoSearchState extends State {
 
   void updateLogoInfos(List<LogoInfo> logoInfos) {
     _logoInfos = logoInfos;
+    _isQueried = true;
   }
 
   void selectedLogoInfoAt(int index) {

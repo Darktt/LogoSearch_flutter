@@ -1,7 +1,7 @@
 class HttpException implements Exception {
   final HttpStatusCode statusCode;
 
-  String get message => '$statusCode.description';
+  String get message => statusCode.description;
 
   HttpException(this.statusCode);
 }

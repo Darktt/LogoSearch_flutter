@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logo_search/models/text_styles.dart';
+import 'package:logo_search/view_model/logo_search_error.dart';
 import 'package:provider/provider.dart';
 import 'package:logo_search/models/colors.dart';
 import 'package:logo_search/models/brand_search_request.dart';
@@ -45,7 +47,7 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
                 onInputChanged: (value) => _searchText = value,
                 onSearchPressed: () => _sendSearchAction(store),
               ),
-              Expanded(child: _setupListView(store)),
+              _setupListView(store),
             ],
           ),
         ),
@@ -53,12 +55,25 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
     );
   }
 
-  ListView _setupListView(LogoSearchStore store) => ListView.builder(
-      shrinkWrap: true,
-      itemCount: store.state.logoInfos.length,
-      itemBuilder: (context, index) {
-        return _setupListRow(index, store);
-      });
+  Widget _setupListView(LogoSearchStore store) {
+    final error = store.state.error;
+    if (error != null) {
+      return _showErrorDialog(error);
+    }
+
+    if (store.state.logoInfos.isEmpty && store.state.isQueried) {
+      return _setupEmptyLogos();
+    }
+
+    return Expanded(
+      child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: store.state.logoInfos.length,
+          itemBuilder: (context, index) {
+            return _setupListRow(index, store);
+          }),
+    );
+  }
 
   Widget _setupListRow(int index, LogoSearchStore store) {
     final logoInfos = store.state.logoInfos;
@@ -73,6 +88,62 @@ class _SearchLogoPageState extends State<SearchLogoPage> {
         });
 
     return row;
+  }
+
+  Widget _setupEmptyLogos() => Expanded(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(image: AssetImage('assets/images/emptyLogosMark.png')),
+                Text(
+                  'No logos found',
+                  style:
+                      TextStyles.callout.withColor(CustomColors.text.secondary),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+
+  Widget _showErrorDialog(LogoSearchError error) {
+    final message = error.$2;
+
+    return FutureBuilder(
+      future: Future.delayed(Duration(milliseconds: 0)),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return SizedBox.shrink();
+        }
+        Future(() {
+          if (!context.mounted) {
+            return;
+          }
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Error'),
+                content: Text(message),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        });
+
+        return SizedBox.shrink();
+      },
+    );
   }
 
 // - Actions -

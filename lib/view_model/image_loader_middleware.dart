@@ -13,6 +13,8 @@ Middleware<LogoSearchState, LogoSearchAction> imageLoaderMiddleware<
         _imageRequest(action).then((newAction) {
           next(newAction);
         });
+
+        return;
       }
 
       next(action);

@@ -25,9 +25,10 @@ final class ApiHandler {
 
     HttpClientResponse httpResponse = await httpRequest.close();
     String json = await httpResponse.transform(utf8.decoder).join();
+    int statusCode = httpResponse.statusCode;
 
-    if (httpResponse.statusCode != 200) {
-      HttpStatusCode code = HttpStatusCode.statusCode(httpResponse.statusCode);
+    if (statusCode != 200) {
+      HttpStatusCode code = HttpStatusCode.statusCode(statusCode);
       final exception = HttpException(code);
 
       throw exception;

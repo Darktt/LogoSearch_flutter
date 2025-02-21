@@ -13,6 +13,7 @@ Middleware<LogoSearchState, LogoSearchAction>
         LogoSearchAction newAction = _parseException(action);
 
         next(newAction);
+        return;
       }
 
       next(action);
